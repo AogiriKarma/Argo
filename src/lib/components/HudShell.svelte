@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import CommandK from './CommandK.svelte';
   import ThemeSwitcher from './ThemeSwitcher.svelte';
+  import AccountChip from './AccountChip.svelte';
 
   interface Props {
     children: import('svelte').Snippet;
@@ -45,6 +46,7 @@
       <div class="flex items-center gap-2">
         <CommandK />
         <ThemeSwitcher />
+        <AccountChip />
       </div>
     </div>
   </header>

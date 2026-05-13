@@ -6,12 +6,14 @@
   import EntityModal from '$lib/components/EntityModal.svelte';
   import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
   import { tryInterceptLink } from '$lib/stores/modal';
+  import { initCloudSync } from '$lib/data/cloud-sync';
 
   let { children } = $props();
   let error = $state<string | null>(null);
 
   onMount(() => {
     ensureDump().catch((e) => { error = String(e); });
+    initCloudSync();
 
     // Global click interceptor (capture phase, before SvelteKit's link
     // navigation kicks in). Cmd/Ctrl/Shift-click keeps normal navigation.

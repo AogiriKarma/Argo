@@ -2,7 +2,7 @@
 
 Wiki communautaire du serveur Minecraft **Veilleurs au Clair de Lune** — items, mobs, PNJ, quêtes, cartes, listes de courses.
 
-Hébergé sur https://aogiri.dev.
+Hébergé sur https://argo.aogiri.dev.
 
 ## Stack
 
