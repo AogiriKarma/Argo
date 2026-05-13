@@ -281,7 +281,7 @@
     {/each}
   </div>
 
-  <div class="border-b border-border mb-6 flex gap-1 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+  <div class="border-b border-border mb-6 flex gap-1 overflow-x-auto md:overflow-visible -mx-4 px-4 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     {#each tabs as t (t.key)}
       <button
         type="button"
