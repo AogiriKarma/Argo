@@ -96,7 +96,7 @@
     return out;
   });
 
-  const mapSrc = $derived(`/img/maps/floor-${floor}${underground ? '_underground' : ''}.png`);
+  const mapSrc = $derived(`/img/maps/floor-${floor}${underground ? '_underground' : ''}.webp`);
 
   // Pan & zoom (logical coords stay 0..MAP_SIZE; we just transform the wrapper)
   let zoom = $state(1);
