@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+
+/* ─────────────────────────────────────────────────────
+   Design tokens
+   ─────────────────────────────────────────────────── */
+@theme {
+  /* Surfaces */
+  --color-bg: #0c0f15;
+  --color-surface: #161a23;
+  --color-surface-2: #1d222d;
+  --color-surface-3: #262c39;
+  --color-border: #20262f;
+  --color-border-strong: #353c4b;
+
+  /* Text */
+  --color-text: #e6e9f0;
+  --color-text-dim: #8b94a5;
+  --color-text-faint: #525a6b;
+
+  /* Accent — used sparingly: active state, links, primary CTAs */
+  --color-accent: #5fb4ff;
+  --color-accent-soft: rgba(95, 180, 255, 0.12);
+
+  /* Status */
+  --color-danger: #ff5b6e;
+  --color-warning: #ffb84a;
+  --color-success: #56d6a4;
+
+  /* Rarity — applied only to content (item name text) */
+  --color-rarity-commun: #b8c4d8;
+  --color-rarity-rare: #5fb4ff;
+  --color-rarity-epique: #c084fc;
+  --color-rarity-legendaire: #ffb84a;
+  --color-rarity-mythique: #ff6db0;
+  --color-rarity-godlike: #ff5a39;
+  --color-rarity-event: #5fd6a4;
+
+  /* Typography */
+  --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+/* ─────────────────────────────────────────────────────
+   Themes — applied via <html data-theme="…">. Each theme
+   overrides only the surface/text/accent tokens; rarity
+   stays consistent across themes.
+   ─────────────────────────────────────────────────── */
+[data-theme='nord'] {
+  --color-bg: #2e3440;
+  --color-surface: #3b4252;
+  --color-surface-2: #434c5e;
+  --color-surface-3: #4c566a;
+  --color-border: #3b4252;
+  --color-border-strong: #4c566a;
+  --color-text: #eceff4;
+  --color-text-dim: #d8dee9;
+  --color-text-faint: #7b88a1;
+  --color-accent: #88c0d0;
+  --color-accent-soft: rgba(136, 192, 208, 0.14);
+  --color-danger: #bf616a;
+  --color-warning: #ebcb8b;
+  --color-success: #a3be8c;
+}
+[data-theme='catppuccin'] {
+  --color-bg: #1e1e2e;
+  --color-surface: #313244;
+  --color-surface-2: #45475a;
+  --color-surface-3: #585b70;
+  --color-border: #313244;
+  --color-border-strong: #45475a;
+  --color-text: #cdd6f4;
+  --color-text-dim: #a6adc8;
+  --color-text-faint: #6c7086;
+  --color-accent: #cba6f7;
+  --color-accent-soft: rgba(203, 166, 247, 0.14);
+  --color-danger: #f38ba8;
+  --color-warning: #f9e2af;
+  --color-success: #a6e3a1;
+}
+[data-theme='tokyo-night'] {
+  --color-bg: #1a1b26;
+  --color-surface: #24283b;
+  --color-surface-2: #2f334d;
+  --color-surface-3: #3b3f5a;
+  --color-border: #2a2e44;
+  --color-border-strong: #414868;
+  --color-text: #c0caf5;
+  --color-text-dim: #9aa5ce;
+  --color-text-faint: #565f89;
+  --color-accent: #7aa2f7;
+  --color-accent-soft: rgba(122, 162, 247, 0.14);
+  --color-danger: #f7768e;
+  --color-warning: #e0af68;
+  --color-success: #9ece6a;
+}
+[data-theme='everblush'] {
+  --color-bg: #141b1e;
+  --color-surface: #1a2326;
+  --color-surface-2: #232c30;
+  --color-surface-3: #2c3539;
+  --color-border: #232c30;
+  --color-border-strong: #3a4347;
+  --color-text: #dadada;
+  --color-text-dim: #b3b9c2;
+  --color-text-faint: #5e6772;
+  --color-accent: #67b0e8;
+  --color-accent-soft: rgba(103, 176, 232, 0.14);
+  --color-danger: #e57474;
+  --color-warning: #e5c890;
+  --color-success: #8ccf7e;
+}
+[data-theme='gruvbox'] {
+  --color-bg: #282828;
+  --color-surface: #32302f;
+  --color-surface-2: #3c3836;
+  --color-surface-3: #504945;
+  --color-border: #3c3836;
+  --color-border-strong: #665c54;
+  --color-text: #ebdbb2;
+  --color-text-dim: #d5c4a1;
+  --color-text-faint: #928374;
+  --color-accent: #fabd2f;
+  --color-accent-soft: rgba(250, 189, 47, 0.14);
+  --color-danger: #fb4934;
+  --color-warning: #fe8019;
+  --color-success: #b8bb26;
+}
+[data-theme='rose-pine'] {
+  --color-bg: #191724;
+  --color-surface: #1f1d2e;
+  --color-surface-2: #26233a;
+  --color-surface-3: #2a273f;
+  --color-border: #26233a;
+  --color-border-strong: #403d52;
+  --color-text: #e0def4;
+  --color-text-dim: #908caa;
+  --color-text-faint: #6e6a86;
+  --color-accent: #c4a7e7;
+  --color-accent-soft: rgba(196, 167, 231, 0.14);
+  --color-danger: #eb6f92;
+  --color-warning: #f6c177;
+  --color-success: #9ccfd8;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss03';
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-faint); }
+
+.num,
+.font-mono { font-variant-numeric: tabular-nums; }
+
+.pixel {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Rarity text colors */
+.text-rarity-commun     { color: var(--color-rarity-commun); }
+.text-rarity-rare       { color: var(--color-rarity-rare); }
+.text-rarity-epique     { color: var(--color-rarity-epique); }
+.text-rarity-legendaire { color: var(--color-rarity-legendaire); }
+.text-rarity-mythique   { color: var(--color-rarity-mythique); }
+.text-rarity-godlike    { color: var(--color-rarity-godlike); }
+.text-rarity-event      { color: var(--color-rarity-event); }
+
+.dot-rarity-commun     { background: var(--color-rarity-commun); }
+.dot-rarity-rare       { background: var(--color-rarity-rare); }
+.dot-rarity-epique     { background: var(--color-rarity-epique); }
+.dot-rarity-legendaire { background: var(--color-rarity-legendaire); }
+.dot-rarity-mythique   { background: var(--color-rarity-mythique); }
+.dot-rarity-godlike    { background: var(--color-rarity-godlike); }
+.dot-rarity-event      { background: var(--color-rarity-event); }

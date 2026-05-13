@@ -1,0 +1,12 @@
+node_modules
+.svelte-kit
+build
+.env
+.env.*
+!.env.example
+.vercel
+.netlify
+.cloudflare
+*.log
+.DS_Store
+.vite
