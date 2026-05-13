@@ -12,7 +12,7 @@
   const total = $derived($items.length + $mobs.length + $pnj.length + $quetes.length);
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-16 lg:py-24">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-10 md:py-16 lg:py-24">
   <section class="max-w-2xl">
     <div class="text-[11px] uppercase tracking-[0.2em] text-text-faint mb-4">Argo</div>
     <h1 class="text-5xl md:text-6xl font-semibold tracking-tight text-text leading-[1.05]">

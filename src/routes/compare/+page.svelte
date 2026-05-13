@@ -73,7 +73,7 @@
   }
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-10">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader title="Comparateur" subtitle="Jusqu'à 4 items côte à côte. Le meilleur de chaque stat est mis en avant." />
 
   {#if selected.length === 0}

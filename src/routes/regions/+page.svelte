@@ -3,7 +3,7 @@
   import { regions } from '$lib/data/store';
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-10">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader title="Régions" subtitle="Tous les biomes et zones du serveur" count={$regions.length} />
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">

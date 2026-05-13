@@ -68,7 +68,7 @@
   }
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-10">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader title="Items" subtitle="Tous les objets référencés du serveur" count="{filtered.length.toLocaleString('fr-FR')} / {$items.length.toLocaleString('fr-FR')}">
     {#snippet children()}
       {#if q || palier || rarity || cat}
@@ -78,7 +78,7 @@
   </SectionHeader>
 
   <!-- Filter bar -->
-  <div class="mb-4 flex flex-wrap items-center gap-2 sticky top-14 z-10 py-3 -mx-6 px-6 bg-bg/95 backdrop-blur-sm border-b border-border">
+  <div class="mb-4 flex flex-wrap items-center gap-2 sticky top-14 z-10 py-3 -mx-4 md:-mx-6 px-4 md:px-6 bg-bg/95 backdrop-blur-sm border-b border-border">
     <div class="relative flex-1 min-w-[220px] max-w-md">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-text-faint" aria-hidden="true">
         <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
@@ -122,11 +122,37 @@
     </select>
   </div>
 
-  <!-- Table -->
   {#if filtered.length === 0}
     <div class="py-20 text-center text-text-dim">Aucun item ne correspond aux filtres.</div>
   {:else}
-    <div class="overflow-x-auto">
+    <!-- Mobile : list of cards -->
+    <ul class="md:hidden space-y-1.5">
+      {#each filtered.slice(0, 200) as item (item._id)}
+        {@const itemCat = item.cat || item.category || ''}
+        {@const img = resolveImg(item.images?.[0] ?? item.image)}
+        <li>
+          <a href="/items/{item.id}" class="flex items-center gap-3 p-2 bg-surface active:bg-surface-2 rounded-md border border-border">
+            <ItemImage src={img} cat={itemCat} size={40} />
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium truncate text-rarity-{item.rarity}">{item.name}</div>
+              <div class="text-[11px] text-text-faint flex items-center gap-1.5 mt-0.5">
+                <span class="w-1.5 h-1.5 rounded-full dot-rarity-{item.rarity}"></span>
+                <span>{RARITY_LABEL[item.rarity]}</span>
+                <span>·</span>
+                <span class="truncate">{CATEGORY_LABEL[itemCat] ?? itemCat}</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0 text-[11px] text-text-faint font-mono">
+              {#if item.lvl}<div>lvl {item.lvl}</div>{/if}
+              {#if item.palier}<div>P{item.palier}</div>{/if}
+            </div>
+          </a>
+        </li>
+      {/each}
+    </ul>
+
+    <!-- Desktop : table -->
+    <div class="hidden md:block overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="text-left text-[11px] uppercase tracking-wider text-text-faint">

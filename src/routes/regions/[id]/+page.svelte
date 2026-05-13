@@ -19,7 +19,7 @@
     <a href="/regions" class="mt-6 inline-block text-accent hover:underline text-sm">← Régions</a>
   </div>
 {:else}
-  <div class="max-w-[1100px] mx-auto px-6 py-10">
+  <div class="max-w-[1100px] mx-auto px-4 md:px-6 py-6 md:py-10">
     <nav class="mb-8 text-sm text-text-dim">
       <a href="/regions" class="hover:text-text">Régions</a>
     </nav>

@@ -25,7 +25,7 @@
   }
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-10">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader title="Personnages" subtitle="Marchands, forgerons, donneurs de quêtes" count={filtered.length} />
 
   <div class="mb-4 flex flex-wrap items-center gap-2 sticky top-14 z-10 py-3 -mx-6 px-6 bg-bg/95 backdrop-blur-sm border-b border-border">

@@ -27,7 +27,7 @@
     <a href="/mobs" class="mt-6 inline-block text-accent hover:underline text-sm">← Bestiaire</a>
   </div>
 {:else}
-  <div class="max-w-[1100px] mx-auto px-6 py-10">
+  <div class="max-w-[1100px] mx-auto px-4 md:px-6 py-6 md:py-10">
     <nav class="mb-8 text-sm text-text-dim flex items-center gap-2">
       <a href="/mobs" class="hover:text-text">Bestiaire</a>
       <span class="text-text-faint">/</span>

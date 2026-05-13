@@ -48,13 +48,14 @@
 <button
   type="button"
   onclick={() => { open = true; setTimeout(() => inputEl?.focus(), 10); }}
-  class="flex items-center gap-2.5 px-3 h-9 min-w-[260px] rounded-md bg-surface hover:bg-surface-2 text-text-dim transition-colors"
+  class="flex items-center justify-center md:justify-start gap-2.5 px-2 md:px-3 h-9 w-9 md:w-auto md:min-w-[260px] rounded-md bg-surface hover:bg-surface-2 text-text-dim transition-colors"
+  aria-label="Rechercher"
 >
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
   </svg>
-  <span class="text-sm flex-1 text-left">Rechercher…</span>
-  <kbd class="font-mono text-[11px] text-text-faint">⌘K</kbd>
+  <span class="hidden md:inline text-sm flex-1 text-left">Rechercher…</span>
+  <kbd class="hidden md:inline font-mono text-[11px] text-text-faint">⌘K</kbd>
 </button>
 
 {#if open}

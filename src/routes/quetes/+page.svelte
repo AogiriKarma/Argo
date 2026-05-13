@@ -88,7 +88,7 @@
   }
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-10">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader
     title="Quêtes"
     subtitle="Cycle le statut d'une quête (à faire → en cours → terminée) en cliquant sur la pastille."
@@ -121,7 +121,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
     <!-- Sidebar filters -->
-    <aside class="space-y-6 lg:sticky lg:top-20 self-start">
+    <aside class="lg:sticky lg:top-20 self-start space-y-6">
       <div>
         <input
           type="text"
@@ -132,71 +132,92 @@
         />
       </div>
 
-      <fieldset>
-        <legend class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Statut</legend>
-        <div class="space-y-0.5">
-          {#each [
-            { v: 'all',  label: 'Toutes',     n: statusCounts.all },
-            { v: 'todo', label: 'À faire',    n: statusCounts.todo },
-            { v: 'wip',  label: 'En cours',   n: statusCounts.wip },
-            { v: 'done', label: 'Terminées',  n: statusCounts.done }
-          ] as opt}
-            <label class="flex items-center gap-2 px-2 h-8 rounded text-sm cursor-pointer {statut === opt.v ? 'bg-surface' : 'hover:bg-surface/60'}">
-              <input
-                type="radio"
-                name="statut"
-                value={opt.v}
-                checked={statut === opt.v}
-                onchange={() => setParam('statut', opt.v === 'all' ? '' : opt.v)}
-                class="sr-only"
-              />
-              {#if opt.v === 'all'}
-                <span class="w-2.5 h-2.5 rounded-full border border-text-faint"></span>
-              {:else}
-                <QuestStatusDot status={opt.v as QuestStatus} size={10} />
-              {/if}
-              <span class="flex-1 {statut === opt.v ? 'text-text' : 'text-text-dim'}">{opt.label}</span>
-              <span class="text-xs text-text-faint num">{opt.n}</span>
-            </label>
-          {/each}
-        </div>
-      </fieldset>
-
-      {#if paliers.length}
+      {#snippet filterControls()}
         <fieldset>
-          <legend class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Palier</legend>
+          <legend class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Statut</legend>
           <div class="space-y-0.5">
-            <button type="button" onclick={() => setParam('palier', '')} class="w-full flex items-center justify-between px-2 h-7 rounded text-sm {palier === '' ? 'bg-surface text-text' : 'text-text-dim hover:bg-surface/60'}">
-              <span>Tous</span>
-              <span class="text-xs text-text-faint num">{byTab.length}</span>
-            </button>
-            {#each paliers as [p, n] (p)}
-              <button type="button" onclick={() => setParam('palier', p)} class="w-full flex items-center justify-between px-2 h-7 rounded text-sm {palier === p ? 'bg-surface text-text' : 'text-text-dim hover:bg-surface/60'}">
-                <span>Palier {p}</span>
-                <span class="text-xs text-text-faint num">{n}</span>
-              </button>
+            {#each [
+              { v: 'all',  label: 'Toutes',     n: statusCounts.all },
+              { v: 'todo', label: 'À faire',    n: statusCounts.todo },
+              { v: 'wip',  label: 'En cours',   n: statusCounts.wip },
+              { v: 'done', label: 'Terminées',  n: statusCounts.done }
+            ] as opt}
+              <label class="flex items-center gap-2 px-2 h-9 rounded text-sm cursor-pointer {statut === opt.v ? 'bg-surface' : 'active:bg-surface/60'}">
+                <input
+                  type="radio"
+                  name="statut"
+                  value={opt.v}
+                  checked={statut === opt.v}
+                  onchange={() => setParam('statut', opt.v === 'all' ? '' : opt.v)}
+                  class="sr-only"
+                />
+                {#if opt.v === 'all'}
+                  <span class="w-2.5 h-2.5 rounded-full border border-text-faint"></span>
+                {:else}
+                  <QuestStatusDot status={opt.v as QuestStatus} size={10} />
+                {/if}
+                <span class="flex-1 {statut === opt.v ? 'text-text' : 'text-text-dim'}">{opt.label}</span>
+                <span class="text-xs text-text-faint num">{opt.n}</span>
+              </label>
             {/each}
           </div>
         </fieldset>
-      {/if}
 
-      {#if zones.length > 1}
-        <fieldset>
-          <legend class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Zone</legend>
-          <div class="space-y-0.5 max-h-[280px] overflow-y-auto pr-1">
-            <button type="button" onclick={() => setParam('zone', '')} class="w-full flex items-center justify-between px-2 h-7 rounded text-sm {zone === '' ? 'bg-surface text-text' : 'text-text-dim hover:bg-surface/60'}">
-              <span>Toutes</span>
-              <span class="text-xs text-text-faint num">{byTab.length}</span>
-            </button>
-            {#each zones as [z, n] (z)}
-              <button type="button" onclick={() => setParam('zone', z)} class="w-full flex items-center justify-between px-2 h-7 rounded text-sm text-left {zone === z ? 'bg-surface text-text' : 'text-text-dim hover:bg-surface/60'}">
-                <span class="truncate">{z}</span>
-                <span class="text-xs text-text-faint num shrink-0 ml-2">{n}</span>
+        {#if paliers.length}
+          <fieldset>
+            <legend class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Palier</legend>
+            <div class="space-y-0.5">
+              <button type="button" onclick={() => setParam('palier', '')} class="w-full flex items-center justify-between px-2 h-8 rounded text-sm {palier === '' ? 'bg-surface text-text' : 'text-text-dim active:bg-surface/60'}">
+                <span>Tous</span>
+                <span class="text-xs text-text-faint num">{byTab.length}</span>
               </button>
-            {/each}
-          </div>
-        </fieldset>
-      {/if}
+              {#each paliers as [p, n] (p)}
+                <button type="button" onclick={() => setParam('palier', p)} class="w-full flex items-center justify-between px-2 h-8 rounded text-sm {palier === p ? 'bg-surface text-text' : 'text-text-dim active:bg-surface/60'}">
+                  <span>Palier {p}</span>
+                  <span class="text-xs text-text-faint num">{n}</span>
+                </button>
+              {/each}
+            </div>
+          </fieldset>
+        {/if}
+
+        {#if zones.length > 1}
+          <fieldset>
+            <legend class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Zone</legend>
+            <div class="space-y-0.5 max-h-[280px] overflow-y-auto pr-1">
+              <button type="button" onclick={() => setParam('zone', '')} class="w-full flex items-center justify-between px-2 h-8 rounded text-sm {zone === '' ? 'bg-surface text-text' : 'text-text-dim active:bg-surface/60'}">
+                <span>Toutes</span>
+                <span class="text-xs text-text-faint num">{byTab.length}</span>
+              </button>
+              {#each zones as [z, n] (z)}
+                <button type="button" onclick={() => setParam('zone', z)} class="w-full flex items-center justify-between px-2 h-8 rounded text-sm text-left {zone === z ? 'bg-surface text-text' : 'text-text-dim active:bg-surface/60'}">
+                  <span class="truncate">{z}</span>
+                  <span class="text-xs text-text-faint num shrink-0 ml-2">{n}</span>
+                </button>
+              {/each}
+            </div>
+          </fieldset>
+        {/if}
+      {/snippet}
+
+      <!-- Mobile : filtres pliables -->
+      <details class="lg:hidden bg-surface border border-border rounded-lg overflow-hidden">
+        <summary class="px-4 h-11 flex items-center justify-between cursor-pointer text-sm text-text list-none [&::-webkit-details-marker]:hidden">
+          <span class="flex items-center gap-2 font-medium">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v6l-4-2v-4L4 5Z"/></svg>
+            Filtres
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-faint"><path d="M5 9l7 7 7-7"/></svg>
+        </summary>
+        <div class="px-4 pb-4 pt-1 space-y-6 border-t border-border">
+          {@render filterControls()}
+        </div>
+      </details>
+
+      <!-- Desktop : filtres toujours visibles -->
+      <div class="hidden lg:block space-y-6">
+        {@render filterControls()}
+      </div>
     </aside>
 
     <!-- Main grid -->

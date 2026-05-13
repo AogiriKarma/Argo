@@ -257,7 +257,7 @@
   }
 </script>
 
-<div class="max-w-[1480px] mx-auto px-6 py-10">
+<div class="max-w-[1480px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader title="Mon profil" subtitle="Stocké localement dans ce navigateur uniquement.">
     {#snippet children()}
       <button type="button" onclick={exportData} class="text-sm text-text-dim hover:text-text">Exporter (.json)</button>
@@ -281,12 +281,12 @@
     {/each}
   </div>
 
-  <div class="border-b border-border mb-6 flex gap-1">
+  <div class="border-b border-border mb-6 flex gap-1 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
     {#each tabs as t (t.key)}
       <button
         type="button"
         onclick={() => setTab(t.key)}
-        class="px-4 h-10 text-sm transition-colors relative {tab === t.key ? 'text-text' : 'text-text-dim hover:text-text'}"
+        class="px-4 h-10 text-sm whitespace-nowrap transition-colors relative {tab === t.key ? 'text-text' : 'text-text-dim hover:text-text'}"
       >
         {t.label}
         {#if tab === t.key}<span class="absolute left-0 right-0 -bottom-px h-px bg-accent"></span>{/if}
@@ -296,9 +296,23 @@
 
   {#if tab === 'lists'}
     <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
-      <!-- List sidebar -->
+      <!-- List sidebar (horizontal chips on mobile, sidebar on lg+) -->
       <aside>
-        <div class="space-y-0.5 mb-3">
+        <!-- Mobile: horizontal scrollable chips -->
+        <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-3 mb-3 border-b border-border">
+          {#each $user.lists as l (l.id)}
+            <button
+              type="button"
+              onclick={() => setActiveList(l.id)}
+              class="shrink-0 inline-flex items-center gap-2 px-3 h-9 rounded-md text-sm whitespace-nowrap transition-colors {activeListId === l.id ? 'bg-surface text-text border border-border' : 'text-text-dim bg-surface/40'}"
+            >
+              <span>{l.name}</span>
+              <span class="text-xs text-text-faint num">{l.groups.reduce((s, g) => s + g.entries.length, 0)}</span>
+            </button>
+          {/each}
+        </div>
+        <!-- Desktop: vertical list -->
+        <div class="hidden lg:block space-y-0.5 mb-3">
           {#each $user.lists as l (l.id)}
             <button
               type="button"
@@ -415,19 +429,22 @@
                       {#each g.entries as e (e.kind + ':' + e.id)}
                         {#if e.kind === 'quest'}
                           {@const q = $questById.get(e.id)}
-                          <li class="flex items-center gap-3 p-2 bg-surface rounded-md border border-border">
+                          <li class="flex flex-wrap items-center gap-2 sm:gap-3 p-2 bg-surface rounded-md border border-border">
                             <span class="inline-flex items-center justify-center w-10 h-10 bg-bg rounded-md text-warning shrink-0" title="Quête">
                               <Icon name="quest" size={18} />
                             </span>
-                            <a href={q ? `/quetes/${e.id}` : '#'} class="flex-1 min-w-0">
+                            <a href={q ? `/quetes/${e.id}` : '#'} class="flex-1 min-w-[140px]">
                               <div class="text-[10px] uppercase tracking-wider text-text-faint">Quête</div>
                               <div class="text-sm font-medium truncate text-text">{q?.titre || q?.name || e.id}</div>
                             </a>
+                            <button type="button" onclick={() => removeQuestFromList(activeList.id, e.id)} class="w-9 h-9 inline-flex items-center justify-center rounded text-text-faint hover:text-danger order-last sm:order-none" title="Retirer">
+                              <Icon name="close" size={14} />
+                            </button>
                             {#if activeList.groups.length > 1}
                               <select
                                 value={g.id}
                                 onchange={(ev) => moveEntry(activeList.id, 'quest', e.id, ev.currentTarget.value)}
-                                class="h-8 px-2 bg-bg border border-border hover:border-border-strong rounded text-xs text-text-dim hover:text-text outline-none max-w-[140px]"
+                                class="h-9 px-2 bg-bg border border-border hover:border-border-strong rounded text-xs text-text-dim hover:text-text outline-none max-w-[160px] w-full sm:w-auto"
                                 title="Déplacer vers un autre sous-groupe"
                               >
                                 {#each activeList.groups as og (og.id)}
@@ -435,18 +452,18 @@
                                 {/each}
                               </select>
                             {/if}
-                            <button type="button" onclick={() => removeQuestFromList(activeList.id, e.id)} class="text-text-faint hover:text-danger" title="Retirer">
-                              <Icon name="close" size={14} />
-                            </button>
                           </li>
                         {:else}
                           {@const it = $itemById.get(e.id)}
                           {@const img = it ? resolveImg(it.images?.[0] ?? it.image) : null}
-                          <li class="flex items-center gap-3 p-2 bg-surface rounded-md border border-border">
+                          <li class="flex flex-wrap items-center gap-2 sm:gap-3 p-2 bg-surface rounded-md border border-border">
                             <ItemImage src={img} cat={it?.cat || it?.category || ''} size={40} alt={it?.name ?? e.id} />
-                            <a href={it ? `/items/${e.id}` : '#'} class="flex-1 min-w-0 text-sm font-medium truncate {it ? 'text-rarity-' + (it.rarity || 'commun') : 'text-text-dim'}">{it?.name ?? e.id}</a>
+                            <a href={it ? `/items/${e.id}` : '#'} class="flex-1 min-w-[140px] text-sm font-medium truncate {it ? 'text-rarity-' + (it.rarity || 'commun') : 'text-text-dim'}">{it?.name ?? e.id}</a>
+                            <button type="button" onclick={() => removeItemFromList(activeList.id, e.id)} class="w-9 h-9 inline-flex items-center justify-center rounded text-text-faint hover:text-danger order-last sm:order-none" title="Retirer">
+                              <Icon name="close" size={14} />
+                            </button>
                             <div class="flex items-center bg-bg rounded-md border border-border">
-                              <button type="button" onclick={() => setListItemQty(activeList.id, e.id, Math.max(1, e.qty - 1))} class="w-7 h-8 text-text-dim hover:text-text" aria-label="−">−</button>
+                              <button type="button" onclick={() => setListItemQty(activeList.id, e.id, Math.max(1, e.qty - 1))} class="w-8 h-9 text-text-dim hover:text-text" aria-label="−">−</button>
                               <input
                                 type="number"
                                 min="1"
@@ -455,15 +472,15 @@
                                   const v = parseInt(ev.currentTarget.value);
                                   if (Number.isFinite(v) && v > 0) setListItemQty(activeList.id, e.id, v);
                                 }}
-                                class="w-12 h-8 bg-transparent text-center font-mono num text-sm outline-none"
+                                class="w-12 h-9 bg-transparent text-center font-mono num text-sm outline-none"
                               />
-                              <button type="button" onclick={() => setListItemQty(activeList.id, e.id, e.qty + 1)} class="w-7 h-8 text-text-dim hover:text-text" aria-label="+">+</button>
+                              <button type="button" onclick={() => setListItemQty(activeList.id, e.id, e.qty + 1)} class="w-8 h-9 text-text-dim hover:text-text" aria-label="+">+</button>
                             </div>
                             {#if activeList.groups.length > 1}
                               <select
                                 value={g.id}
                                 onchange={(ev) => moveEntry(activeList.id, 'item', e.id, ev.currentTarget.value)}
-                                class="h-8 px-2 bg-bg border border-border hover:border-border-strong rounded text-xs text-text-dim hover:text-text outline-none max-w-[140px]"
+                                class="h-9 px-2 bg-bg border border-border hover:border-border-strong rounded text-xs text-text-dim hover:text-text outline-none max-w-[160px] flex-1 sm:flex-none"
                                 title="Déplacer vers un autre sous-groupe"
                               >
                                 {#each activeList.groups as og (og.id)}
@@ -471,9 +488,6 @@
                                 {/each}
                               </select>
                             {/if}
-                            <button type="button" onclick={() => removeItemFromList(activeList.id, e.id)} class="text-text-faint hover:text-danger" title="Retirer">
-                              <Icon name="close" size={14} />
-                            </button>
                           </li>
                         {/if}
                       {/each}
