@@ -26,7 +26,10 @@
 <div class="min-h-screen flex flex-col">
   <header class="border-b border-border bg-bg sticky top-0 z-30">
     <div class="max-w-[1480px] mx-auto px-6 h-14 flex items-center gap-8">
-      <a href="/" class="text-text font-semibold tracking-tight shrink-0">Argo</a>
+      <a href="/" class="flex items-center gap-2 text-text font-semibold tracking-tight shrink-0">
+        <img src="/argo.png" alt="" class="w-7 h-7 rounded-md object-cover" />
+        <span>Argo</span>
+      </a>
 
       <nav class="hidden md:flex items-center gap-1 flex-1">
         {#each tabs as t (t.href)}

@@ -77,11 +77,11 @@
           Synchronisation cloud non configurée pour cette instance. Tes données restent en local.
         </div>
       {:else}
-        <div class="px-5 pb-2 space-y-2">
-          <button type="button" onclick={() => oauth('google')} disabled={busy} class="w-full h-10 inline-flex items-center justify-center gap-2 bg-bg border border-border hover:border-border-strong text-text-dim hover:text-text rounded-md text-sm transition-colors disabled:opacity-40">
-            Continuer avec Google
-          </button>
-          <button type="button" onclick={() => oauth('discord')} disabled={busy} class="w-full h-10 inline-flex items-center justify-center gap-2 bg-bg border border-border hover:border-border-strong text-text-dim hover:text-text rounded-md text-sm transition-colors disabled:opacity-40">
+        <div class="px-5 pb-2">
+          <button type="button" onclick={() => oauth('discord')} disabled={busy} class="w-full h-10 inline-flex items-center justify-center gap-2.5 bg-bg border border-border hover:border-border-strong text-text-dim hover:text-text rounded-md text-sm transition-colors disabled:opacity-40">
+            <svg width="16" height="16" viewBox="0 0 71 55" aria-hidden="true">
+              <path fill="#5865F2" d="M60.1 4.9A58.5 58.5 0 0 0 45.6.5c-.6 1.1-1.4 2.7-2 3.9a54 54 0 0 0-16.2 0c-.5-1.2-1.3-2.7-2-3.9a58.5 58.5 0 0 0-14.5 4.4C1.7 18.7-.8 32.1.4 45.3a59.7 59.7 0 0 0 17.9 9c1.4-2 2.7-4 3.8-6.3-2-.8-4-1.8-5.8-2.9.5-.4 1-.7 1.4-1.1a42 42 0 0 0 35.9 0c.5.4 1 .7 1.5 1.1-1.9 1.1-3.8 2-5.8 2.9a47 47 0 0 0 3.8 6.3 59 59 0 0 0 17.9-9c1.4-15.3-2.5-28.6-10.9-40.4ZM23.7 37.3c-3.6 0-6.6-3.3-6.6-7.4 0-4.1 2.9-7.4 6.6-7.4 3.7 0 6.7 3.3 6.6 7.4 0 4.1-3 7.4-6.6 7.4Zm24.4 0c-3.6 0-6.6-3.3-6.6-7.4 0-4.1 2.9-7.4 6.6-7.4 3.7 0 6.7 3.3 6.6 7.4 0 4.1-2.9 7.4-6.6 7.4Z"/>
+            </svg>
             Continuer avec Discord
           </button>
         </div>
