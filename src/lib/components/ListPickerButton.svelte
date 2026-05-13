@@ -1,22 +1,66 @@
 <script lang="ts">
-  import { user, createList, toggleInListById, listsContaining } from '$lib/data/user';
+  import {
+    user, createList, addItemsToList, removeItemFromList,
+    listsContaining, addGroup
+  } from '$lib/data/user';
   import Icon from './Icon.svelte';
 
-  interface Props {
-    itemId: string;
-  }
+  interface Props { itemId: string }
   let { itemId }: Props = $props();
 
   let open = $state(false);
   let newName = $state('');
+  let pickingListId = $state<string | null>(null);
+  let newGroupName = $state('');
+
   const inLists = $derived(listsContaining($user, itemId));
   const inCount = $derived(inLists.length);
+  const pickingList = $derived(pickingListId ? $user.lists.find((l) => l.id === pickingListId) : null);
 
-  function submitNew(e: SubmitEvent) {
+  /** Find which group of a list holds the item (if any). */
+  function inGroupOf(list: { groups: any[] }): string | null {
+    for (const g of list.groups) {
+      if (g.entries.some((e: any) => e.kind === 'item' && e.id === itemId)) return g.id;
+    }
+    return null;
+  }
+
+  function pickList(list: { id: string; groups: any[]; name: string }) {
+    const already = inGroupOf(list);
+    if (already) {
+      // Already in this list → remove it (toggle off)
+      removeItemFromList(list.id, itemId);
+      return;
+    }
+    if (list.groups.length <= 1) {
+      addItemsToList(list.id, [{ id: itemId, qty: 1 }]);
+    } else {
+      pickingListId = list.id;
+    }
+  }
+
+  function pickGroup(groupId: string) {
+    if (!pickingListId) return;
+    addItemsToList(pickingListId, [{ id: itemId, qty: 1 }], groupId);
+    pickingListId = null;
+    open = false;
+  }
+
+  function submitNewList(e: SubmitEvent) {
     e.preventDefault();
     const id = createList(newName || 'Nouvelle liste');
-    toggleInListById(id, itemId);
+    addItemsToList(id, [{ id: itemId, qty: 1 }]);
     newName = '';
+  }
+
+  function submitNewGroup(e: SubmitEvent) {
+    e.preventDefault();
+    if (!pickingListId) return;
+    const gid = addGroup(pickingListId, newGroupName || 'Nouveau sous-groupe');
+    addItemsToList(pickingListId, [{ id: itemId, qty: 1 }], gid);
+    newGroupName = '';
+    pickingListId = null;
+    open = false;
   }
 </script>
 
@@ -44,51 +88,92 @@
     <div
       role="presentation"
       class="fixed inset-0 z-40"
-      onclick={() => (open = false)}
+      onclick={() => { open = false; pickingListId = null; }}
       onkeydown={(e) => e.key === 'Escape' && (open = false)}
     ></div>
     <div
-      class="absolute z-50 mt-1 w-72 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-lg shadow-2xl overflow-hidden"
+      class="absolute z-50 mt-1 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-lg shadow-2xl overflow-hidden"
       role="dialog"
     >
-      <div class="px-4 py-3 border-b border-border text-[11px] uppercase tracking-wider text-text-faint">
-        Ajouter à…
+      <div class="px-4 py-3 border-b border-border flex items-center gap-2">
+        {#if pickingListId && pickingList}
+          <button type="button" onclick={() => (pickingListId = null)} class="text-text-faint hover:text-text" title="Retour">
+            <Icon name="chevron_right" size={14} class="rotate-180" />
+          </button>
+          <span class="text-[11px] uppercase tracking-wider text-text-faint truncate">{pickingList.name} › sous-groupe</span>
+        {:else}
+          <span class="text-[11px] uppercase tracking-wider text-text-faint">Ajouter à…</span>
+        {/if}
       </div>
 
-      {#if $user.lists.length === 0}
-        <p class="px-4 py-3 text-sm text-text-faint italic">Aucune liste. Crée-en une ci-dessous.</p>
-      {:else}
+      {#if pickingListId && pickingList}
+        <!-- Group picker -->
         <ul class="max-h-[40vh] overflow-y-auto py-1">
-          {#each $user.lists as l (l.id)}
-            {@const inIt = l.groups.some((g) => g.entries.some((e) => e.kind === 'item' && e.id === itemId))}
-            {@const count = l.groups.reduce((s, g) => s + g.entries.length, 0)}
+          {#each pickingList.groups as g (g.id)}
             <li>
               <button
                 type="button"
-                onclick={() => toggleInListById(l.id, itemId)}
+                onclick={() => pickGroup(g.id)}
                 class="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-surface-2 text-left"
               >
-                <span class="w-4 h-4 rounded border flex items-center justify-center shrink-0 {inIt ? 'bg-accent border-accent text-bg' : 'border-text-faint'}">
-                  {#if inIt}<Icon name="check" size={12} />{/if}
-                </span>
-                <span class="flex-1 truncate {inIt ? 'text-text' : 'text-text-dim'}">{l.name}</span>
-                <span class="text-xs text-text-faint num">{count}</span>
+                <Icon name="plus" size={13} class="text-text-faint" />
+                <span class="flex-1 truncate text-text-dim">{g.name || 'Sans groupe'}</span>
+                <span class="text-xs text-text-faint num">{g.entries.length}</span>
               </button>
             </li>
           {/each}
         </ul>
-      {/if}
+        <form onsubmit={submitNewGroup} class="flex items-center gap-2 px-4 py-3 border-t border-border bg-bg/40">
+          <Icon name="plus" size={14} class="text-text-faint" />
+          <input
+            bind:value={newGroupName}
+            type="text"
+            placeholder="Nouveau sous-groupe…"
+            class="flex-1 bg-transparent outline-none text-sm placeholder:text-text-faint"
+          />
+          <button type="submit" class="text-xs text-accent hover:underline">Créer</button>
+        </form>
+      {:else}
+        {#if $user.lists.length === 0}
+          <p class="px-4 py-3 text-sm text-text-faint italic">Aucune liste. Crée-en une ci-dessous.</p>
+        {:else}
+          <ul class="max-h-[40vh] overflow-y-auto py-1">
+            {#each $user.lists as l (l.id)}
+              {@const inIt = !!inGroupOf(l)}
+              {@const count = l.groups.reduce((s, g) => s + g.entries.length, 0)}
+              {@const hasGroups = l.groups.length > 1}
+              <li>
+                <button
+                  type="button"
+                  onclick={() => pickList(l)}
+                  class="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-surface-2 text-left"
+                >
+                  <span class="w-4 h-4 rounded border flex items-center justify-center shrink-0 {inIt ? 'bg-accent border-accent text-bg' : 'border-text-faint'}">
+                    {#if inIt}<Icon name="check" size={12} />{/if}
+                  </span>
+                  <span class="flex-1 truncate {inIt ? 'text-text' : 'text-text-dim'}">{l.name}</span>
+                  {#if hasGroups && !inIt}
+                    <span class="text-[10px] uppercase tracking-wider text-text-faint">{l.groups.length} ss-gr.</span>
+                    <Icon name="chevron_right" size={12} class="text-text-faint" />
+                  {/if}
+                  <span class="text-xs text-text-faint num">{count}</span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
 
-      <form onsubmit={submitNew} class="flex items-center gap-2 px-4 py-3 border-t border-border bg-bg/40">
-        <Icon name="plus" size={14} class="text-text-faint" />
-        <input
-          bind:value={newName}
-          type="text"
-          placeholder="Nouvelle liste…"
-          class="flex-1 bg-transparent outline-none text-sm placeholder:text-text-faint"
-        />
-        <button type="submit" class="text-xs text-accent hover:underline">Créer</button>
-      </form>
+        <form onsubmit={submitNewList} class="flex items-center gap-2 px-4 py-3 border-t border-border bg-bg/40">
+          <Icon name="plus" size={14} class="text-text-faint" />
+          <input
+            bind:value={newName}
+            type="text"
+            placeholder="Nouvelle liste…"
+            class="flex-1 bg-transparent outline-none text-sm placeholder:text-text-faint"
+          />
+          <button type="submit" class="text-xs text-accent hover:underline">Créer</button>
+        </form>
+      {/if}
     </div>
   {/if}
 </div>

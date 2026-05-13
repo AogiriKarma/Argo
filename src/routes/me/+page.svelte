@@ -373,27 +373,26 @@
                 {#if !(g.entries.length === 0 && !g.name && activeList.groups.length === 1)}
                 {@const collapsed = collapsedGroups.has(g.id)}
                 <section class="rounded-lg {g.name ? 'border border-border bg-surface/40' : ''}">
-                  <header class="flex items-center justify-between gap-3 {g.name ? 'px-4 py-3' : ''}">
-                    <button type="button" onclick={() => toggleCollapse(g.id)} class="flex items-center gap-1.5 flex-1 min-w-0 text-left hover:text-text" title={collapsed ? 'Déplier' : 'Replier'}>
-                      <Icon name="chevron_right" size={14} class="text-text-faint shrink-0 transition-transform {collapsed ? '' : 'rotate-90'}" />
-                      {#if editingGroupId === g.id}
-                        <!-- placeholder; input rendered below -->
-                        <span class="flex-1"></span>
-                      {:else}
-                        <h3 class="text-sm font-medium text-text flex-1 truncate">
-                          {#if g.name}{g.name}{:else}<span class="text-text-faint uppercase tracking-wider text-[11px]">Sans groupe</span>{/if}
-                          <span class="ml-2 text-[11px] text-text-faint font-mono num">{g.entries.length}</span>
-                        </h3>
-                      {/if}
+                  <header class="flex items-center gap-2 {g.name ? 'px-4 py-3' : ''}">
+                    <button type="button" onclick={() => toggleCollapse(g.id)} class="shrink-0 inline-flex items-center justify-center w-6 h-6 text-text-faint hover:text-text" title={collapsed ? 'Déplier' : 'Replier'} aria-label={collapsed ? 'Déplier' : 'Replier'}>
+                      <Icon name="chevron_right" size={14} class="transition-transform {collapsed ? '' : 'rotate-90'}" />
                     </button>
+
                     {#if editingGroupId === g.id}
                       <input
                         bind:value={editingGroupName}
                         onblur={commitGroupRename}
                         onkeydown={(e) => { if (e.key === 'Enter') commitGroupRename(); if (e.key === 'Escape') editingGroupId = null; }}
-                        class="text-sm font-medium bg-transparent border-b border-border outline-none flex-1"
+                        class="text-sm font-medium bg-transparent border-b border-border outline-none flex-1 min-w-0"
                         autofocus
                       />
+                    {:else}
+                      <button type="button" onclick={() => toggleCollapse(g.id)} class="flex-1 min-w-0 text-left">
+                        <h3 class="text-sm font-medium text-text truncate">
+                          {#if g.name}{g.name}{:else}<span class="text-text-faint uppercase tracking-wider text-[11px]">Sans groupe</span>{/if}
+                          <span class="ml-2 text-[11px] text-text-faint font-mono num">{g.entries.length}</span>
+                        </h3>
+                      </button>
                     {/if}
                     {#if g.name || activeList.groups.length > 1}
                       <button type="button" onclick={() => startGroupRename(g.id, g.name)} class="text-[11px] text-text-faint hover:text-text">{g.name ? 'Renommer' : 'Nommer'}</button>

@@ -182,10 +182,17 @@ function defaultGroupId(l: List): string {
 export function addGroup(listId: string, name: string): string {
   const gid = makeId();
   user.update((u) =>
-    mapList(u, listId, (l) => ({
-      ...l,
-      groups: [...l.groups, { id: gid, name: name.trim(), entries: [] }]
-    }))
+    mapList(u, listId, (l) => {
+      // If the only existing group is the empty unnamed default, replace it
+      // instead of leaving a "Sans groupe" stub above the first real group.
+      const onlyDefaultEmpty =
+        l.groups.length === 1 && !l.groups[0].name && l.groups[0].entries.length === 0;
+      const existing = onlyDefaultEmpty ? [] : l.groups;
+      return {
+        ...l,
+        groups: [...existing, { id: gid, name: name.trim(), entries: [] }]
+      };
+    })
   );
   return gid;
 }
