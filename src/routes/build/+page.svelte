@@ -317,6 +317,7 @@
     category={SLOT_CATEGORY[pickerSlot]}
     slotLabel={SLOT_LABEL[pickerSlot]}
     classFilter={$user.build.class}
+    currentItemId={$user.build.slots[pickerSlot] ?? null}
     onClose={() => (pickerOpen = false)}
     onPick={pickItem}
   />
