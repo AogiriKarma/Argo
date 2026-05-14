@@ -52,6 +52,8 @@ export const PLAYER_CLASSES: { id: Exclude<PlayerClass, null>; label: string }[]
 export interface BuildData {
   name: string;
   class: PlayerClass;
+  /** Niveau du personnage (0 = non défini). Filtre les items > level dans le picker. */
+  level: number;
   slots: Partial<Record<BuildSlot, string>>;
 }
 
@@ -72,7 +74,7 @@ const EMPTY: UserData = {
   questStatus: {},
   questObjectives: {},
   notes: {},
-  build: { name: 'Build', class: null, slots: {} }
+  build: { name: 'Build', class: null, level: 0, slots: {} }
 };
 
 function makeId(): string {
@@ -531,4 +533,8 @@ export function renameBuild(name: string) {
 }
 export function setBuildClass(c: PlayerClass) {
   user.update((u) => ({ ...u, build: { ...u.build, class: c } }));
+}
+export function setBuildLevel(lvl: number) {
+  const n = Math.max(0, Math.min(99, Math.floor(lvl)));
+  user.update((u) => ({ ...u, build: { ...u.build, level: n } }));
 }

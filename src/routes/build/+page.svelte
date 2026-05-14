@@ -1,7 +1,7 @@
 <script lang="ts">
   import { itemById, resolveImg } from '$lib/data/store';
   import {
-    user, setBuildSlot, clearBuild, renameBuild, setBuildClass,
+    user, setBuildSlot, clearBuild, renameBuild, setBuildClass, setBuildLevel,
     BUILD_SLOTS, SLOT_CATEGORY, PLAYER_CLASSES,
     type BuildSlot, type PlayerClass
   } from '$lib/data/user';
@@ -129,7 +129,9 @@
       {/if}
       <p class="mt-2 text-sm text-text-dim">
         Clic sur un slot pour équiper.
-        {#if requiredLvl > 0}<span> · Niveau requis : <span class="text-warning font-mono num">{requiredLvl}</span></span>{/if}
+        {#if requiredLvl > 0}
+          <span> · Niveau requis : <span class="font-mono num {$user.build.level > 0 && requiredLvl > $user.build.level ? 'text-danger' : 'text-warning'}">{requiredLvl}</span></span>
+        {/if}
         {#if mismatchCount > 0}<span class="text-warning"> · {mismatchCount} item{mismatchCount > 1 ? 's' : ''} hors classe</span>{/if}
       </p>
     </div>
@@ -139,9 +141,29 @@
     </button>
   </header>
 
-  <!-- Sélecteur de classe -->
-  <div class="mb-8 flex items-center gap-2 flex-wrap">
-    <span class="text-[11px] uppercase tracking-wider text-text-faint mr-1">Classe</span>
+  <!-- Niveau + Classe -->
+  <div class="mb-8 flex items-center gap-6 flex-wrap">
+    <!-- Niveau -->
+    <div class="flex items-center gap-2">
+      <span class="text-[11px] uppercase tracking-wider text-text-faint">Niveau</span>
+      <div class="flex items-center bg-surface border border-border rounded-md">
+        <button type="button" onclick={() => setBuildLevel(($user.build.level || 1) - 1)} class="w-8 h-9 text-text-dim hover:text-text" aria-label="−">−</button>
+        <input
+          type="number"
+          min="0"
+          max="99"
+          value={$user.build.level || ''}
+          placeholder="?"
+          oninput={(e) => setBuildLevel(parseInt(e.currentTarget.value) || 0)}
+          class="w-12 h-9 bg-transparent text-center font-mono num text-sm outline-none"
+        />
+        <button type="button" onclick={() => setBuildLevel(($user.build.level || 0) + 1)} class="w-8 h-9 text-text-dim hover:text-text" aria-label="+">+</button>
+      </div>
+    </div>
+
+    <!-- Classe -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-[11px] uppercase tracking-wider text-text-faint mr-1">Classe</span>
     {#each PLAYER_CLASSES as cls}
       {@const selected = $user.build.class === cls.id}
       <button
@@ -153,9 +175,10 @@
         <span class="text-sm">{cls.label}</span>
       </button>
     {/each}
-    {#if $user.build.class}
-      <button type="button" onclick={() => setBuildClass(null)} class="text-xs text-text-faint hover:text-text">Aucune classe</button>
-    {/if}
+      {#if $user.build.class}
+        <button type="button" onclick={() => setBuildClass(null)} class="text-xs text-text-faint hover:text-text">Aucune</button>
+      {/if}
+    </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
@@ -317,6 +340,7 @@
     category={SLOT_CATEGORY[pickerSlot]}
     slotLabel={SLOT_LABEL[pickerSlot]}
     classFilter={$user.build.class}
+    playerLevel={$user.build.level}
     currentItemId={$user.build.slots[pickerSlot] ?? null}
     onClose={() => (pickerOpen = false)}
     onPick={pickItem}

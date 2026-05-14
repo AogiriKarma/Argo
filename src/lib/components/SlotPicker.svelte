@@ -9,6 +9,8 @@
     category: string;
     slotLabel: string;
     classFilter?: string | null;
+    /** Niveau du joueur — items dont lvl > playerLevel sont masqués sauf opt-out */
+    playerLevel?: number;
     /** Item actuellement équipé sur ce slot — pour le delta */
     currentItemId?: string | null;
     onClose: () => void;
@@ -18,6 +20,7 @@
     open = $bindable(),
     category, slotLabel,
     classFilter = null,
+    playerLevel = 0,
     currentItemId = null,
     onClose, onPick
   }: Props = $props();
@@ -25,6 +28,7 @@
   let q = $state('');
   let palier = $state('');
   let showOtherClasses = $state(false);
+  let showAboveLevel = $state(false);
 
   /** Item survolé / sélectionné pour le preview */
   let hoverId = $state<string | null>(null);
@@ -36,10 +40,16 @@
     return cls.includes(classFilter);
   }
 
+  function fitsLevel(it: any): boolean {
+    if (!playerLevel || playerLevel <= 0) return true;
+    return (it.lvl ?? 0) <= playerLevel;
+  }
+
   const candidates = $derived.by(() => {
     return $allItems
       .filter((it) => (it.cat || it.category) === category)
       .filter((it) => showOtherClasses || fitsClass(it))
+      .filter((it) => showAboveLevel || fitsLevel(it))
       .filter((it) => !palier || String(it.palier ?? '') === palier)
       .filter((it) => !q || it.name.toLowerCase().includes(q.toLowerCase()))
       .sort((a, b) => (a.lvl ?? 99) - (b.lvl ?? 99) || a.name.localeCompare(b.name, 'fr'));
@@ -138,12 +148,20 @@
             <option value="3">P3</option>
           </select>
         </div>
-        {#if classFilter}
-          <label class="inline-flex items-center gap-2 text-xs text-text-dim cursor-pointer">
-            <input type="checkbox" bind:checked={showOtherClasses} class="accent-accent" />
-            Afficher aussi les items d'autres classes
-          </label>
-        {/if}
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          {#if classFilter}
+            <label class="inline-flex items-center gap-2 text-xs text-text-dim cursor-pointer">
+              <input type="checkbox" bind:checked={showOtherClasses} class="accent-accent" />
+              Autres classes
+            </label>
+          {/if}
+          {#if playerLevel > 0}
+            <label class="inline-flex items-center gap-2 text-xs text-text-dim cursor-pointer">
+              <input type="checkbox" bind:checked={showAboveLevel} class="accent-accent" />
+              Items au-dessus de mon niveau (lvl {playerLevel})
+            </label>
+          {/if}
+        </div>
       </div>
 
       <!-- 2 colonnes : liste + preview -->
@@ -166,7 +184,7 @@
                   <div class="text-[11px] text-text-faint flex items-center gap-1.5 flex-wrap">
                     <span class="dot-rarity-{it.rarity} w-1.5 h-1.5 rounded-full inline-block"></span>
                     <span>{RARITY_LABEL[it.rarity]}</span>
-                    {#if it.lvl}<span>· lvl {it.lvl}</span>{/if}
+                    {#if it.lvl}<span class="{playerLevel > 0 && it.lvl > playerLevel ? 'text-warning' : ''}">· lvl {it.lvl}</span>{/if}
                     {#if it.palier}<span>· P{it.palier}</span>{/if}
                     {#if it.classes?.length}
                       <span class="px-1.5 py-px rounded text-[10px] {classFilter && !it.classes.includes(classFilter) ? 'bg-warning/15 text-warning' : 'bg-bg text-text-faint'}">
