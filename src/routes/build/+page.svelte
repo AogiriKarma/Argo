@@ -10,6 +10,7 @@
   import ItemImage from '$lib/components/ItemImage.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import SlotPicker from '$lib/components/SlotPicker.svelte';
+  import SkinViewer from '$lib/components/SkinViewer.svelte';
   import { askConfirm } from '$lib/stores/confirm';
 
   const SLOT_LABEL: Record<BuildSlot, string> = {
@@ -199,19 +200,14 @@
 
         <!-- Silhouette + armes -->
         <div class="order-3 md:order-2 col-span-2 md:col-span-1">
-          <div class="relative aspect-square bg-gradient-to-b from-surface to-bg rounded-lg border border-border overflow-hidden flex items-end justify-center">
-            <img
-              src={skinUrl}
-              alt={$user.build.class ?? 'sans classe'}
-              class="w-full h-full object-contain pixel"
-              style="image-rendering: pixelated"
-            />
+          <div class="relative aspect-square bg-gradient-to-b from-surface to-bg rounded-lg border border-border overflow-hidden">
+            <SkinViewer skinUrl={skinUrl} />
             {#if !$user.build.class}
-              <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="absolute top-2 left-2 right-2 flex items-center justify-center pointer-events-none">
                 <div class="px-3 py-1.5 bg-bg/80 backdrop-blur-sm rounded-md text-xs text-text-dim">Choisis une classe</div>
               </div>
             {:else}
-              <div class="absolute bottom-2 left-2 right-2 px-3 py-1.5 bg-bg/80 backdrop-blur-sm rounded text-center text-sm font-medium capitalize">
+              <div class="absolute bottom-2 left-2 right-2 px-3 py-1.5 bg-bg/80 backdrop-blur-sm rounded text-center text-sm font-medium capitalize pointer-events-none">
                 {$user.build.class}
               </div>
             {/if}
