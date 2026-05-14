@@ -16,6 +16,7 @@
     { href: '/pnj', label: 'PNJ' },
     { href: '/quetes', label: 'Quêtes' },
     { href: '/guide', label: 'Guide' },
+    { href: '/build', label: 'Build' },
     { href: '/map', label: 'Carte' },
     { href: '/me', label: 'Profil' }
   ];

@@ -22,6 +22,29 @@ export interface List {
   progress?: Record<string, number>;
 }
 
+export const BUILD_SLOTS = [
+  'casque', 'plastron', 'jambieres', 'bottes', 'gants',
+  'arme_p', 'arme_s',
+  'amulette', 'bracelet',
+  'anneau1', 'anneau2',
+  'artefact'
+] as const;
+export type BuildSlot = typeof BUILD_SLOTS[number];
+
+/** Catégorie d'item compatible avec un slot donné. */
+export const SLOT_CATEGORY: Record<BuildSlot, string> = {
+  casque: 'casque', plastron: 'plastron', jambieres: 'jambières', bottes: 'bottes', gants: 'gants',
+  arme_p: 'arme_p', arme_s: 'arme_s',
+  amulette: 'amulette', bracelet: 'bracelet',
+  anneau1: 'anneau', anneau2: 'anneau',
+  artefact: 'artefact'
+};
+
+export interface BuildData {
+  name: string;
+  slots: Partial<Record<BuildSlot, string>>;
+}
+
 interface UserData {
   lists: List[];
   favorites: string[];
@@ -29,6 +52,7 @@ interface UserData {
   questStatus: Record<string, Exclude<QuestStatus, 'todo'>>;
   questObjectives: Record<string, number[]>;
   notes: Record<string, string>;
+  build: BuildData;
 }
 
 const EMPTY: UserData = {
@@ -37,7 +61,8 @@ const EMPTY: UserData = {
   craftedItems: [],
   questStatus: {},
   questObjectives: {},
-  notes: {}
+  notes: {},
+  build: { name: 'Build', slots: {} }
 };
 
 function makeId(): string {
@@ -478,3 +503,19 @@ export function setNote(id: string, text: string) {
   });
 }
 export function clearAll() { user.set({ ...EMPTY }); }
+
+// ── Build / Stuff ─────────────────────────────────────
+export function setBuildSlot(slot: BuildSlot, itemId: string | null) {
+  user.update((u) => {
+    const slots = { ...u.build.slots };
+    if (itemId) slots[slot] = itemId;
+    else delete slots[slot];
+    return { ...u, build: { ...u.build, slots } };
+  });
+}
+export function clearBuild() {
+  user.update((u) => ({ ...u, build: { ...u.build, slots: {} } }));
+}
+export function renameBuild(name: string) {
+  user.update((u) => ({ ...u, build: { ...u.build, name: name.trim() || u.build.name } }));
+}
