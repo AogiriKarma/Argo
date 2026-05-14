@@ -1,27 +1,37 @@
 <script lang="ts">
-  import { stepsP1 } from '$lib/data/guide-p1';
-  import { questById, itemById, resolveImg } from '$lib/data/store';
-  import { user, setQuestStatus, getQuestStatus, type QuestStatus } from '$lib/data/user';
-  import SectionHeader from '$lib/components/SectionHeader.svelte';
-  import QuestStatusDot from '$lib/components/QuestStatusDot.svelte';
-  import ItemImage from '$lib/components/ItemImage.svelte';
-  import Lore from '$lib/components/Lore.svelte';
+  import { guideP1 } from '$lib/data/guide-p1';
+  import { questById } from '$lib/data/store';
+  import { user, getQuestStatus, type QuestStatus } from '$lib/data/user';
+  import QuestDetail from '$lib/components/details/QuestDetail.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import SectionHeader from '$lib/components/SectionHeader.svelte';
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
 
   function statusOf(qid: string): QuestStatus {
     const q = $questById.get(qid);
     return getQuestStatus($user, qid, q?.objectifs?.length ?? 0);
   }
 
-  const total = $derived(stepsP1.length);
-  const done = $derived(stepsP1.filter((s) => statusOf(s.id) === 'done').length);
+  // Index courant via ?step=N (1-based en URL pour lisibilité)
+  const stepParam = $derived(parseInt($page.url.searchParams.get('step') ?? '') || 0);
+  const firstUndoneIdx = $derived.by(() => {
+    const i = guideP1.findIndex((id) => statusOf(id) !== 'done');
+    return i === -1 ? 0 : i;
+  });
+  const idx = $derived(stepParam > 0 ? Math.min(stepParam - 1, guideP1.length - 1) : firstUndoneIdx);
 
-  // First non-done quest = current step. Used to auto-scroll/highlight.
-  const currentId = $derived(stepsP1.find((s) => statusOf(s.id) !== 'done')?.id ?? null);
+  const currentId = $derived(guideP1[idx]);
+  const prevId = $derived(idx > 0 ? guideP1[idx - 1] : null);
+  const nextId = $derived(idx < guideP1.length - 1 ? guideP1[idx + 1] : null);
 
-  // Filter
-  let showDone = $state(true);
-  const visible = $derived(showDone ? stepsP1 : stepsP1.filter((s) => statusOf(s.id) !== 'done'));
+  function setStep(n: number) {
+    const u = new URL($page.url);
+    u.searchParams.set('step', String(n + 1));
+    goto(u.pathname + u.search, { replaceState: true, keepFocus: true, noScroll: false });
+  }
+
+  const totalDone = $derived(guideP1.filter((id) => statusOf(id) === 'done').length);
 </script>
 
 <svelte:head>
@@ -31,137 +41,66 @@
 <div class="max-w-[1100px] mx-auto px-4 md:px-6 py-6 md:py-10">
   <SectionHeader
     title="Guide P1"
-    subtitle="Une quête par carte, avec les items à préparer avant de la commencer."
-    count="{done}/{total}"
+    subtitle="Quête par quête. Utilise précédent / suivant pour avancer."
+    count="{idx + 1} / {guideP1.length}"
   />
 
-  <!-- Header strip -->
-  <div class="mb-6 flex items-center justify-between gap-4 flex-wrap p-4 rounded-lg bg-surface border border-border">
-    <div class="flex-1 min-w-[200px]">
-      <div class="flex items-baseline justify-between mb-2">
-        <span class="text-[11px] uppercase tracking-wider text-text-faint">Progression P1 main</span>
-        <span class="text-sm font-mono num {done === total ? 'text-success' : 'text-text'}">{done} / {total}</span>
-      </div>
-      <div class="h-1.5 rounded-full bg-bg overflow-hidden">
-        <div class="h-full bg-accent transition-all" style="width:{(done/total)*100}%"></div>
-      </div>
+  <!-- Progression -->
+  <div class="mb-6 flex items-center gap-3">
+    <div class="flex-1 h-1.5 rounded-full bg-surface overflow-hidden">
+      <div class="h-full bg-accent transition-all" style="width:{(totalDone / guideP1.length) * 100}%"></div>
     </div>
-    <label class="inline-flex items-center gap-2 text-sm text-text-dim cursor-pointer select-none">
-      <input type="checkbox" bind:checked={showDone} class="sr-only peer" />
-      <span class="w-9 h-5 rounded-full bg-bg border border-border peer-checked:bg-accent/30 peer-checked:border-accent/50 relative transition-colors">
-        <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-text-faint peer-checked:bg-accent peer-checked:translate-x-4 transition-all"></span>
-      </span>
-      Afficher terminées
-    </label>
+    <span class="text-[11px] font-mono num text-text-faint shrink-0">{totalDone} terminée{totalDone > 1 ? 's' : ''}</span>
   </div>
 
-  <ol class="space-y-3">
-    {#each visible as step (step.id)}
-      {@const q = $questById.get(step.id)}
-      {@const s = statusOf(step.id)}
-      {@const isCurrent = step.id === currentId}
-      <li class="rounded-lg border overflow-hidden {s === 'done' ? 'border-success/30 bg-success/5' : isCurrent ? 'border-accent/40 bg-surface' : 'border-border bg-surface/40'}">
-        <header class="px-5 py-4 flex items-start gap-4">
-          <button
-            type="button"
-            onclick={() => setQuestStatus(step.id, s === 'done' ? 'todo' : 'done')}
-            class="mt-1 shrink-0"
-            title={s === 'done' ? 'Marquer non fait' : 'Marquer terminée'}
-            aria-label={s === 'done' ? 'Marquer non fait' : 'Marquer terminée'}
-          >
-            <QuestStatusDot status={s} size={14} />
-          </button>
+  <!-- Nav haut -->
+  <nav class="mb-8 grid grid-cols-2 gap-3">
+    {#if prevId}
+      {@const pq = $questById.get(prevId)}
+      <button type="button" onclick={() => setStep(idx - 1)} class="flex items-start gap-3 p-3 bg-surface hover:bg-surface-2 rounded-md border border-border hover:border-border-strong transition-colors text-left">
+        <Icon name="chevron_right" size={16} class="text-text-faint rotate-180 mt-0.5 shrink-0" />
+        <span class="min-w-0 flex-1">
+          <span class="block text-[11px] uppercase tracking-wider text-text-faint">Précédente</span>
+          <span class="block text-sm text-text truncate">{pq?.titre || pq?.name || prevId}</span>
+        </span>
+      </button>
+    {:else}<div></div>{/if}
+    {#if nextId}
+      {@const nq = $questById.get(nextId)}
+      <button type="button" onclick={() => setStep(idx + 1)} class="flex items-start gap-3 p-3 bg-surface hover:bg-surface-2 rounded-md border border-border hover:border-border-strong transition-colors text-right justify-end">
+        <span class="min-w-0 flex-1 text-right">
+          <span class="block text-[11px] uppercase tracking-wider text-text-faint">Suivante</span>
+          <span class="block text-sm text-text truncate">{nq?.titre || nq?.name || nextId}</span>
+        </span>
+        <Icon name="chevron_right" size={16} class="text-text-faint mt-0.5 shrink-0" />
+      </button>
+    {/if}
+  </nav>
 
-          <div class="flex-1 min-w-0">
-            <div class="flex items-baseline gap-2 flex-wrap">
-              <span class="text-[11px] text-text-faint font-mono num">{q?.titre?.match(/^\d+/)?.[0] ?? '?'}</span>
-              <a href="/quetes/{step.id}" class="text-base md:text-lg font-semibold tracking-tight {s === 'done' ? 'text-text-dim line-through' : 'text-text hover:text-accent'}">{q?.titre || q?.name || step.id}</a>
-              {#if isCurrent && s !== 'done'}
-                <span class="text-[10px] uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">en cours</span>
-              {/if}
-            </div>
-            <div class="mt-1 text-xs text-text-faint flex items-center gap-2 flex-wrap">
-              {#if q?.zone}<span>{q.zone}</span>{/if}
-              {#if q?.npc}<span>· chez <span class="text-text-dim">{q.npc}</span></span>{/if}
-              {#if q?.coords?.x}<span class="font-mono">· ({q.coords.x}, {q.coords.z})</span>{/if}
-              {#if step.prepLevel}<span class="text-warning">· lvl {step.prepLevel} requis</span>{/if}
-            </div>
-          </div>
-        </header>
+  <!-- Détail de la quête courante (même affichage que /quetes/[id]) -->
+  <QuestDetail id={currentId} showBreadcrumb={false} showNav={false} />
 
-        <div class="px-5 pb-5 space-y-4">
-          <!-- Items à préparer -->
-          {#if step.prepItems?.length}
-            <div class="p-3 rounded-md bg-bg/60 border border-border">
-              <div class="text-[11px] uppercase tracking-wider text-warning mb-2 flex items-center gap-1.5">
-                <Icon name="bookmark_outline" size={12} /> Items à préparer
-              </div>
-              <ul class="space-y-1.5">
-                {#each step.prepItems as it}
-                  {@const item = $itemById.get(it.id)}
-                  {@const img = item ? resolveImg(item.images?.[0] ?? item.image) : null}
-                  <li class="flex items-start gap-2.5 text-sm">
-                    <ItemImage src={img} cat={item?.cat || item?.category || ''} size={24} alt={item?.name ?? it.id} />
-                    <div class="flex-1 min-w-0">
-                      <div>
-                        <a href="/items/{it.id}" class="{item ? 'text-rarity-' + (item.rarity || 'commun') : 'text-text-dim'}">{item?.name ?? it.id}</a>
-                        <span class="ml-1.5 font-mono num text-xs text-text">×{it.qty}</span>
-                      </div>
-                      {#if it.source}
-                        <div class="text-[11px] text-text-faint italic mt-0.5">{it.source}</div>
-                      {/if}
-                    </div>
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
-
-          <!-- Prereq quêtes -->
-          {#if step.prereqQuests?.length}
-            <div class="p-3 rounded-md bg-bg/60 border border-border">
-              <div class="text-[11px] uppercase tracking-wider text-accent mb-2">À faire avant</div>
-              <ul class="space-y-1">
-                {#each step.prereqQuests as pq}
-                  {@const pqq = $questById.get(pq.id)}
-                  <li class="text-sm">
-                    <a href="/quetes/{pq.id}" class="text-accent hover:underline">{pqq?.titre || pqq?.name || pq.id}</a>
-                    {#if pq.note}<span class="text-[11px] text-text-faint italic"> — {pq.note}</span>{/if}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
-
-          <!-- Objectifs (depuis le dump) -->
-          {#if q?.objectifs?.length}
-            <div>
-              <div class="text-[11px] uppercase tracking-wider text-text-faint mb-2">Objectifs</div>
-              <ol class="space-y-1 list-none">
-                {#each q.objectifs as o, i}
-                  <li class="text-sm text-text-dim flex items-start gap-2">
-                    <span class="text-text-faint font-mono num text-[11px] mt-0.5">{i + 1}.</span>
-                    <span class="flex-1"><Lore text={o.texte} /></span>
-                  </li>
-                {/each}
-              </ol>
-            </div>
-          {/if}
-
-          <!-- Tactique -->
-          {#if step.tactique}
-            <div class="text-sm text-text-dim italic border-l-2 border-accent/40 pl-3 leading-relaxed">
-              {step.tactique}
-            </div>
-          {/if}
-        </div>
-      </li>
-    {/each}
-  </ol>
-
-  {#if visible.length === 0}
-    <div class="py-20 text-center text-text-dim">
-      Tout est marqué terminé. Active "Afficher terminées" pour les revoir.
-    </div>
-  {/if}
+  <!-- Nav bas (redondant pour ne pas avoir à remonter) -->
+  <nav class="mt-12 pt-6 border-t border-border grid grid-cols-2 gap-3">
+    {#if prevId}
+      {@const pq = $questById.get(prevId)}
+      <button type="button" onclick={() => setStep(idx - 1)} class="flex items-start gap-3 p-3 bg-surface hover:bg-surface-2 rounded-md border border-border hover:border-border-strong transition-colors text-left">
+        <Icon name="chevron_right" size={16} class="text-text-faint rotate-180 mt-0.5 shrink-0" />
+        <span class="min-w-0 flex-1">
+          <span class="block text-[11px] uppercase tracking-wider text-text-faint">Précédente</span>
+          <span class="block text-sm text-text truncate">{pq?.titre || pq?.name || prevId}</span>
+        </span>
+      </button>
+    {:else}<div></div>{/if}
+    {#if nextId}
+      {@const nq = $questById.get(nextId)}
+      <button type="button" onclick={() => setStep(idx + 1)} class="flex items-start gap-3 p-3 bg-surface hover:bg-surface-2 rounded-md border border-border hover:border-border-strong transition-colors text-right justify-end">
+        <span class="min-w-0 flex-1 text-right">
+          <span class="block text-[11px] uppercase tracking-wider text-text-faint">Suivante</span>
+          <span class="block text-sm text-text truncate">{nq?.titre || nq?.name || nextId}</span>
+        </span>
+        <Icon name="chevron_right" size={16} class="text-text-faint mt-0.5 shrink-0" />
+      </button>
+    {/if}
+  </nav>
 </div>
