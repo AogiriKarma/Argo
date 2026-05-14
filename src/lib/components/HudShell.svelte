@@ -15,6 +15,7 @@
     { href: '/mobs', label: 'Bestiaire' },
     { href: '/pnj', label: 'PNJ' },
     { href: '/quetes', label: 'Quêtes' },
+    { href: '/guide', label: 'Guide' },
     { href: '/map', label: 'Carte' },
     { href: '/me', label: 'Profil' }
   ];

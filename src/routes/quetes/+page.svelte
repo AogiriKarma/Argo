@@ -55,7 +55,12 @@
     let arr = byTab.filter((x) => {
       if (palier && String(x.palier ?? '') !== palier) return false;
       if (zone && (x.zone || '—') !== zone) return false;
-      if (statut !== 'all' && statusOf(x.id) !== statut) return false;
+      if (statut !== 'all') {
+        const s = statusOf(x.id);
+        // "À faire" = pas terminée (todo OU en cours). Les autres filtres restent stricts.
+        if (statut === 'todo') { if (s === 'done') return false; }
+        else if (s !== statut) return false;
+      }
       const name = x.titre || x.name || '';
       if (q && !name.toLowerCase().includes(q)) return false;
       if (invMode) {
@@ -138,7 +143,7 @@
           <div class="space-y-0.5">
             {#each [
               { v: 'all',  label: 'Toutes',     n: statusCounts.all },
-              { v: 'todo', label: 'À faire',    n: statusCounts.todo },
+              { v: 'todo', label: 'À faire',    n: statusCounts.todo + statusCounts.wip },
               { v: 'wip',  label: 'En cours',   n: statusCounts.wip },
               { v: 'done', label: 'Terminées',  n: statusCounts.done }
             ] as opt}
