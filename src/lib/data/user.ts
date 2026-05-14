@@ -40,8 +40,18 @@ export const SLOT_CATEGORY: Record<BuildSlot, string> = {
   artefact: 'artefact'
 };
 
+export type PlayerClass = 'archer' | 'assassin' | 'guerrier' | 'mage' | 'shaman' | null;
+export const PLAYER_CLASSES: { id: Exclude<PlayerClass, null>; label: string }[] = [
+  { id: 'guerrier',  label: 'Guerrier' },
+  { id: 'archer',    label: 'Archer' },
+  { id: 'assassin',  label: 'Assassin' },
+  { id: 'mage',      label: 'Mage' },
+  { id: 'shaman',    label: 'Shaman' }
+];
+
 export interface BuildData {
   name: string;
+  class: PlayerClass;
   slots: Partial<Record<BuildSlot, string>>;
 }
 
@@ -62,7 +72,7 @@ const EMPTY: UserData = {
   questStatus: {},
   questObjectives: {},
   notes: {},
-  build: { name: 'Build', slots: {} }
+  build: { name: 'Build', class: null, slots: {} }
 };
 
 function makeId(): string {
@@ -518,4 +528,7 @@ export function clearBuild() {
 }
 export function renameBuild(name: string) {
   user.update((u) => ({ ...u, build: { ...u.build, name: name.trim() || u.build.name } }));
+}
+export function setBuildClass(c: PlayerClass) {
+  user.update((u) => ({ ...u, build: { ...u.build, class: c } }));
 }
