@@ -11,6 +11,7 @@
   import Icon from '$lib/components/Icon.svelte';
   import SlotPicker from '$lib/components/SlotPicker.svelte';
   import SkinViewer from '$lib/components/SkinViewer.svelte';
+  import SkinHead from '$lib/components/SkinHead.svelte';
   import { askConfirm } from '$lib/stores/confirm';
 
   const SLOT_LABEL: Record<BuildSlot, string> = {
@@ -148,7 +149,7 @@
         onclick={() => pickClass(cls.id)}
         class="inline-flex items-center gap-2 h-9 pl-1 pr-3 rounded-md border transition-colors {selected ? 'border-accent bg-accent/10 text-accent' : 'border-border bg-surface text-text-dim hover:text-text hover:border-border-strong'}"
       >
-        <img src="/img/skins/{cls.id}.png" alt="" class="w-7 h-7 rounded object-cover" />
+        <SkinHead skinUrl={`/img/skins/${cls.id}.png`} size={28} />
         <span class="text-sm">{cls.label}</span>
       </button>
     {/each}
